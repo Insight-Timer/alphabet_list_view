@@ -3,6 +3,7 @@ import 'package:alphabet_list_view/src/controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 /// AlphabetList
@@ -75,10 +76,8 @@ class _AlphabetListState extends State<AlphabetList> {
     super.initState();
     _customScrollKey = GlobalKey();
     widget.scrollController.addListener(_scrollControllerListener);
-    widget.symbolChangeNotifierScrollbar
-        .addListener(_symbolChangeNotifierScrollbarListener);
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _scrollControllerListener());
+    widget.symbolChangeNotifierScrollbar.addListener(_symbolChangeNotifierScrollbarListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollControllerListener());
   }
 
   @override
@@ -111,21 +110,17 @@ class _AlphabetListState extends State<AlphabetList> {
             ),
             ...widget.items.map(
               (item) {
-                final bool useHeaderForEmptySection = widget.alphabetListOptions
-                        .showSectionHeaderForEmptySections ||
+                final bool useHeaderForEmptySection = widget.alphabetListOptions.showSectionHeaderForEmptySections ||
                     !((item.childrenDelegate.estimatedChildCount ?? 0) == 0);
-                final Widget header =
-                    widget.alphabetListOptions.showSectionHeader &&
-                            useHeaderForEmptySection
-                        ? Semantics(
-                            header: true,
-                            child: widget.alphabetListOptions.listHeaderBuilder
-                                    ?.call(context, item.tag) ??
-                                DefaultAlphabetListHeader(
-                                  symbol: item.tag,
-                                ),
-                          )
-                        : const SizedBox.shrink();
+                final Widget header = widget.alphabetListOptions.showSectionHeader && useHeaderForEmptySection
+                    ? Semantics(
+                        header: true,
+                        child: widget.alphabetListOptions.listHeaderBuilder?.call(context, item.tag) ??
+                            DefaultAlphabetListHeader(
+                              symbol: item.tag,
+                            ),
+                      )
+                    : const SizedBox.shrink();
 
                 return SliverStickyHeader(
                   header: Container(key: item.key),
@@ -146,16 +141,14 @@ class _AlphabetListState extends State<AlphabetList> {
 
   @override
   void dispose() {
-    widget.symbolChangeNotifierScrollbar
-        .removeListener(_symbolChangeNotifierScrollbarListener);
+    widget.symbolChangeNotifierScrollbar.removeListener(_symbolChangeNotifierScrollbarListener);
     widget.scrollController.removeListener(_scrollControllerListener);
     super.dispose();
   }
 
   void _scrollControllerListener() {
     try {
-      final customScrollViewRenderBox =
-          _customScrollKey.currentContext?.findRenderObject() as RenderBox?;
+      final customScrollViewRenderBox = _customScrollKey.currentContext?.findRenderObject() as RenderBox?;
       if (customScrollViewRenderBox != null) {
         widget.symbolChangeNotifierList.value = _getFirstVisibleItemGroupSymbol(
           customScrollViewRenderBox,
@@ -173,11 +166,8 @@ class _AlphabetListState extends State<AlphabetList> {
   }
 
   void _showGroup(String symbol) {
-    final RenderObject? renderObject = widget.items
-        .firstWhere((element) => element.tag == symbol)
-        .key
-        .currentContext
-        ?.findRenderObject();
+    final RenderObject? renderObject =
+        widget.items.firstWhere((element) => element.tag == symbol).key.currentContext?.findRenderObject();
     if (renderObject != null) {
       _jumpTo(renderObject);
     }
@@ -191,15 +181,13 @@ class _AlphabetListState extends State<AlphabetList> {
 
     final result = BoxHitTestResult();
     for (final item in items) {
-      final RenderBox? renderBoxItem =
-          item.key.currentContext?.findRenderObject() as RenderBox?;
+      final RenderBox? renderBoxItem = item.key.currentContext?.findRenderObject() as RenderBox?;
       final Offset? localLocationItem = renderBoxItem?.globalToLocal(
         renderBoxScrollView.localToGlobal(
           Offset(0, widget.alphabetListOptions.topOffset ?? 0),
         ),
       );
-      if (localLocationItem != null &&
-          renderBoxScrollView.hitTest(result, position: localLocationItem)) {
+      if (localLocationItem != null && renderBoxScrollView.hitTest(result, position: localLocationItem)) {
         hit = item.tag;
       }
     }
@@ -212,11 +200,11 @@ class _AlphabetListState extends State<AlphabetList> {
 
     final target = viewport.getOffsetToReveal(object, 0).offset.clamp(
           widget.alphabetListOptions.topOffset ?? 0,
-          widget.scrollController.position.maxScrollExtent +
-              (widget.alphabetListOptions.topOffset ?? 0),
+          widget.scrollController.position.maxScrollExtent + (widget.alphabetListOptions.topOffset ?? 0),
         );
     widget.scrollController.jumpTo(
       target - (widget.alphabetListOptions.topOffset ?? 0),
     );
+    HapticFeedback.mediumImpact();
   }
 }

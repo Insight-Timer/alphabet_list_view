@@ -140,6 +140,7 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
   }
 
   void _symbolChangeNotifierListListener() {
+    HapticFeedback.mediumImpact();
     setState(
       () => _selectedSymbol = widget.symbolChangeNotifierList.value ?? _selectedSymbol,
     );
@@ -184,7 +185,6 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
 
     if (result.isNotEmpty) {
       widget.symbolChangeNotifierScrollbar.value = symbol;
-      HapticFeedback.mediumImpact();
       setState(() => _selectedSymbol = symbol);
     }
   }
