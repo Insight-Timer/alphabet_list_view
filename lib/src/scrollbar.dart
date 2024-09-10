@@ -3,6 +3,7 @@ import 'package:alphabet_list_view/src/controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 /// AlphabetScrollBar
 class AlphabetScrollbar extends StatefulWidget {
@@ -68,8 +69,7 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
     _symbolKeys = {
       for (final symbol in _uniqueItems) symbol: GlobalKey(),
     };
-    widget.symbolChangeNotifierList
-        .addListener(_symbolChangeNotifierListListener);
+    widget.symbolChangeNotifierList.addListener(_symbolChangeNotifierListListener);
   }
 
   @override
@@ -86,8 +86,7 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
           onPointerMove: _pointerMoveEventHandler,
           onPointerDown: _pointerMoveEventHandler,
           child: Column(
-            mainAxisAlignment:
-                widget.alphabetScrollbarOptions.mainAxisAlignment,
+            mainAxisAlignment: widget.alphabetScrollbarOptions.mainAxisAlignment,
             mainAxisSize: MainAxisSize.min,
             children: _uniqueItems
                 .map(
@@ -98,16 +97,15 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
                         color: Colors.transparent,
                         width: widget.alphabetScrollbarOptions.width,
                         key: _symbolKeys[symbol],
-                        child:
-                            widget.alphabetScrollbarOptions.symbolBuilder?.call(
-                                  context,
-                                  symbol,
-                                  _getSymbolState(symbol),
-                                ) ??
-                                DefaultScrollbarSymbol(
-                                  symbol: symbol,
-                                  state: _getSymbolState(symbol),
-                                ),
+                        child: widget.alphabetScrollbarOptions.symbolBuilder?.call(
+                              context,
+                              symbol,
+                              _getSymbolState(symbol),
+                            ) ??
+                            DefaultScrollbarSymbol(
+                              symbol: symbol,
+                              state: _getSymbolState(symbol),
+                            ),
                       ),
                     ),
                   ),
@@ -121,14 +119,12 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
 
   @override
   void dispose() {
-    widget.symbolChangeNotifierList
-        .removeListener(_symbolChangeNotifierListListener);
+    widget.symbolChangeNotifierList.removeListener(_symbolChangeNotifierListListener);
     super.dispose();
   }
 
   AlphabetScrollbarItemState _getSymbolState(String symbol) {
-    final Iterable<AlphabetListViewItemGroup> result =
-        widget.items.where((item) => item.tag == symbol);
+    final Iterable<AlphabetListViewItemGroup> result = widget.items.where((item) => item.tag == symbol);
     if (result.isNotEmpty) {
       if ((result.first.childrenDelegate.estimatedChildCount ?? 0) == 0 &&
           !widget.alphabetScrollbarOptions.jumpToSymbolsWithNoEntries) {
@@ -145,8 +141,7 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
 
   void _symbolChangeNotifierListListener() {
     setState(
-      () => _selectedSymbol =
-          widget.symbolChangeNotifierList.value ?? _selectedSymbol,
+      () => _selectedSymbol = widget.symbolChangeNotifierList.value ?? _selectedSymbol,
     );
   }
 
@@ -166,14 +161,10 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
     final result = BoxHitTestResult();
     for (final entry in symbolKeys.entries) {
       try {
-        final RenderBox? renderBox =
-            entry.value.currentContext?.findRenderObject() as RenderBox?;
-        final Offset? localLocation =
-            renderBox?.globalToLocal(details.position);
+        final RenderBox? renderBox = entry.value.currentContext?.findRenderObject() as RenderBox?;
+        final Offset? localLocation = renderBox?.globalToLocal(details.position);
 
-        if (localLocation != null &&
-            renderBox != null &&
-            renderBox.hitTest(result, position: localLocation)) {
+        if (localLocation != null && renderBox != null && renderBox.hitTest(result, position: localLocation)) {
           touchedSymbol = entry.key;
           break;
         }
@@ -183,8 +174,7 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
   }
 
   void _onSymbolTriggered(String symbol) {
-    Iterable<AlphabetListViewItemGroup> result =
-        widget.items.where((item) => item.tag == symbol);
+    Iterable<AlphabetListViewItemGroup> result = widget.items.where((item) => item.tag == symbol);
 
     if (!widget.alphabetScrollbarOptions.jumpToSymbolsWithNoEntries) {
       result = result.where(
@@ -194,6 +184,7 @@ class _AlphabetScrollbarState extends State<AlphabetScrollbar> {
 
     if (result.isNotEmpty) {
       widget.symbolChangeNotifierScrollbar.value = symbol;
+      HapticFeedback.mediumImpact();
       setState(() => _selectedSymbol = symbol);
     }
   }
