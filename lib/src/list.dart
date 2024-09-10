@@ -205,6 +205,5 @@ class _AlphabetListState extends State<AlphabetList> {
     widget.scrollController.jumpTo(
       target - (widget.alphabetListOptions.topOffset ?? 0),
     );
-    HapticFeedback.mediumImpact();
   }
 }
